@@ -23,7 +23,7 @@ jobs:
 
     - name: Set latest eza-community/eza tag
       id: set_eza_tag
-      run: echo "eza_latest_tag=$(echo '${{ steps.fetch_eza_tag.outputs.data }}' | jq -r '.[0].name')" >> $GITHUB_OUTPUT
+      run: echo "eza_latest_tag=$(echo '${{ steps.fetch_eza_tag.outputs.data }}' | jq -r '.[0].name' | sed 's/^v//')" >> $GITHUB_OUTPUT
 
     - name: Fetch tags from kiliantyler/eza-releaser
       id: fetch_releaser_tags
@@ -46,10 +46,10 @@ jobs:
       if: steps.check_new_tag.outputs.new_tag == 'true'
       run: 'echo "New tag found in eza-community/eza: ${{ steps.set_eza_tag.outputs.eza_latest_tag }}. This tag is not present in kiliantyler/eza-releaser."'
 
-  build:
+  release:
     name: package vscode extension
     needs: compare-tags
     if: needs.compare-tags.outputs.new_tag == 'true'
-    uses: ./.github/workflows/build.yaml
+    uses: ./.github/workflows/release.yaml
     with:
       tag: ${{ needs.compare-tags.outputs.eza_latest_tag }}
