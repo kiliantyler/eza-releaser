@@ -116,7 +116,6 @@ jobs:
 
     steps:
     - name: Checkout repository
-      if: matrix.os == 'ubuntu-latest'
       uses: actions/checkout@v4
       with:
         path: "releaser"
@@ -160,12 +159,6 @@ jobs:
         echo "cargo command is: ${{ env.CARGO }}"
         echo "target flag is: ${{ env.TARGET_FLAGS }}"
         echo "target dir is: ${{ env.TARGET_DIR }}"
-
-    - name: Delete existing repo
-      if: matrix.os == 'ubuntu-latest'
-      shell: bash
-      run: |
-        rm -rf "releaser"
 
     - name: Checkout eza repository
       uses: actions/checkout@v4
@@ -236,4 +229,5 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       shell: bash
       run: |
-        gh release upload v${{ inputs.tag }} ${{ env.ASSET }} ${{ env.ASSET_SUM }}
+        cd "$RELEASER_DIR"
+        gh release upload v${{ inputs.tag }} ../${{ env.ASSET }} ../${{ env.ASSET_SUM }}
