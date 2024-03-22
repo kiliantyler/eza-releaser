@@ -210,7 +210,7 @@ jobs:
       run: |
         mkdir -p "$ARCHIVE"/doc
         cp "$BIN" "$ARCHIVE"/
-        cp {README.md,LICENSE} "$ARCHIVE"/
+        cp {README.md,LICENCE} "$ARCHIVE"/
         cp CHANGELOG.md "$ARCHIVE"/doc/
 
     - name: Build archive (Windows)
