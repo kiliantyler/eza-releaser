@@ -49,6 +49,8 @@ jobs:
   release:
     name: release
     needs: compare-tags
+    permissions:
+      contents: write
     if: needs.compare-tags.outputs.new_tag == 'true'
     uses: ./.github/workflows/release.yaml
     with:
