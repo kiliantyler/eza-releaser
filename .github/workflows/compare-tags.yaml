@@ -47,7 +47,7 @@ jobs:
       run: 'echo "New tag found in eza-community/eza: ${{ steps.set_eza_tag.outputs.eza_latest_tag }}. This tag is not present in kiliantyler/eza-releaser."'
 
   release:
-    name: package vscode extension
+    name: release
     needs: compare-tags
     if: needs.compare-tags.outputs.new_tag == 'true'
     uses: ./.github/workflows/release.yaml
