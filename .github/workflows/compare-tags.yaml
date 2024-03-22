@@ -7,6 +7,10 @@ on:
 
 jobs:
   compare-tags:
+    name: Compare Tags
+    outputs:
+      new_tag: ${{ steps.check_new_tag.outputs.new_tag }}
+      eza_latest_tag: ${{ steps.set_eza_tag.outputs.eza_latest_tag }}
     runs-on: ubuntu-latest
     steps:
     - name: Fetch latest tag from eza-community/eza
@@ -19,7 +23,7 @@ jobs:
 
     - name: Set latest eza-community/eza tag
       id: set_eza_tag
-      run: echo "eza_latest_tag=$(echo '${{ steps.fetch_eza_tag.outputs.data }}' | jq -r '.[0].name')" >> $GITHUB_ENV
+      run: echo "eza_latest_tag=$(echo '${{ steps.fetch_eza_tag.outputs.data }}' | jq -r '.[0].name')" >> $GITHUB_OUTPUT
 
     - name: Fetch tags from kiliantyler/eza-releaser
       id: fetch_releaser_tags
@@ -32,12 +36,20 @@ jobs:
     - name: Check if latest eza-community/eza tag is new
       id: check_new_tag
       run: |
-        if echo '${{ steps.fetch_releaser_tags.outputs.data }}' | jq -r '.[].name' | grep -q "${{ env.eza_latest_tag }}"; then
-          echo "new_tag=false" >> $GITHUB_ENV
+        if echo '${{ steps.fetch_releaser_tags.outputs.data }}' | jq -r '.[].name' | grep -q "${{ steps.set_eza_tag.outputs.eza_latest_tag }}"; then
+          echo "new_tag=false" >> $GITHUB_OUTPUT
         else
-          echo "new_tag=true" >> $GITHUB_ENV
+          echo "new_tag=true" >> $GITHUB_OUTPUT
         fi
 
     - name: Output result
-      if: env.new_tag == 'true'
-      run: 'echo "New tag found in eza-community/eza: ${{ env.eza_latest_tag }}. This tag is not present in kiliantyler/eza-releaser."'
+      if: steps.check_new_tag.outputs.new_tag == 'true'
+      run: 'echo "New tag found in eza-community/eza: ${{ steps.set_eza_tag.outputs.eza_latest_tag }}. This tag is not present in kiliantyler/eza-releaser."'
+
+  build:
+    name: package vscode extension
+    needs: compare-tags
+    if: needs.compare-tags.outputs.new_tag == 'true'
+    uses: ./.github/workflows/build.yaml
+    with:
+      tag: ${{ needs.compare-tags.outputs.eza_latest_tag }}
