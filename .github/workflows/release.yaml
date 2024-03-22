@@ -7,6 +7,9 @@ on:
         required: true
         type: string
 
+permissions:
+  contents: write
+
 jobs:
   create-release:
     name: create-release
@@ -16,23 +19,13 @@ jobs:
       run: |
         echo "version is: v${{ inputs.tag }}"
 
-    - name: Checkout eza repository
+    - name: Checkout repository
       uses: actions/checkout@v4
-      with:
-        repository: eza-community/eza
-        ref: v${{ inputs.tag }}
 
-    - name: Check that tag version and Cargo.toml version are the same
-      shell: bash
-      run: |
-        if ! grep -q "version = \"${{ inputs.tag }}\"" Cargo.toml; then
-          echo "version does not match Cargo.toml" >&2
-          exit 1
-        fi
     - name: Create GitHub release
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: gh release create $ --draft --verify-tag --title v${{ inputs.tag }}
+      run: gh release create ${{ inputs.tag }} --draft --title ${{ inputs.tag }}
 
   build-release:
     name: build-release
