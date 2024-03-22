@@ -22,13 +22,10 @@ jobs:
       run: |
         echo "version is: v${{ inputs.tag }}"
 
-    - name: Checkout repository
-      uses: actions/checkout@v4
-
     - name: Create GitHub release
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: gh release create v${{ inputs.tag }} --draft --title v${{ inputs.tag }}
+      run: gh release --repo ${{ github.repository }} create v${{ inputs.tag }} --draft --title v${{ inputs.tag }}
 
   build-release:
     name: build-release
@@ -198,8 +195,7 @@ jobs:
     - name: Determine archive name
       shell: bash
       run: |
-        version="${{ inputs.tag }}"
-        echo "ARCHIVE=eza-$version-${{ matrix.target }}" >> $GITHUB_ENV
+        echo "ARCHIVE=eza-${{ inputs.tag }}-${{ matrix.target }}" >> $GITHUB_ENV
 
     - name: Creating directory for archive
       shell: bash
@@ -232,5 +228,4 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       shell: bash
       run: |
-        cd "releaser"
-        gh release upload v${{ inputs.tag }} ../${{ env.ASSET }} ../${{ env.ASSET_SUM }}
+        gh release --repo ${{ github.repository }} upload v${{ inputs.tag }} ${{ env.ASSET }} ${{ env.ASSET_SUM }}
