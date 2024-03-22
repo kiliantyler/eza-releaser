@@ -25,7 +25,7 @@ jobs:
     - name: Create GitHub release
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: gh release create ${{ inputs.tag }} --draft --title ${{ inputs.tag }}
+      run: gh release create v${{ inputs.tag }} --draft --title v${{ inputs.tag }}
 
   build-release:
     name: build-release
@@ -236,5 +236,4 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       shell: bash
       run: |
-        version="${{ inputs.tag }}"
-        gh release upload "$version" ${{ env.ASSET }} ${{ env.ASSET_SUM }}
+        gh release upload v${{ inputs.tag }} ${{ env.ASSET }} ${{ env.ASSET_SUM }}
