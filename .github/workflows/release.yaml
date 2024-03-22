@@ -229,3 +229,23 @@ jobs:
       shell: bash
       run: |
         gh release --repo ${{ github.repository }} upload v${{ inputs.tag }} ${{ env.ASSET }} ${{ env.ASSET_SUM }}
+
+  finish-release:
+    name: finish-release
+    if: ${{ success() }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: Create GitHub release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: gh release --repo ${{ github.repository }} edit v${{ inputs.tag }} --draft=false --title v${{ inputs.tag }} --latest
+
+  delete-release:
+    name: delete-release
+    runs-on: ubuntu-latest
+    if: ${{ failure() }}
+    steps:
+    - name: Create GitHub release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: gh release --repo ${{ github.repository }} delete v${{ inputs.tag }}
