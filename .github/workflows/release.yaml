@@ -233,9 +233,10 @@ jobs:
   finish-release:
     name: finish-release
     if: ${{ success() }}
+    needs: build-release
     runs-on: ubuntu-latest
     steps:
-    - name: Create GitHub release
+    - name: Publish GitHub release
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: gh release --repo ${{ github.repository }} edit v${{ inputs.tag }} --draft=false --title v${{ inputs.tag }} --latest
