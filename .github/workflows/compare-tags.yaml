@@ -1,0 +1,43 @@
+name: Fetch and Compare Tags
+
+on:
+  schedule:
+  - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  compare-tags:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Fetch latest tag from eza-community/eza
+      id: fetch_eza_tag
+      uses: octokit/request-action@v2.x
+      with:
+        route: GET /repos/eza-community/eza/tags
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Set latest eza-community/eza tag
+      id: set_eza_tag
+      run: echo "eza_latest_tag=$(echo '${{ steps.fetch_eza_tag.outputs.data }}' | jq -r '.[0].name')" >> $GITHUB_ENV
+
+    - name: Fetch tags from kiliantyler/eza-releaser
+      id: fetch_releaser_tags
+      uses: octokit/request-action@v2.x
+      with:
+        route: GET /repos/kiliantyler/eza-releaser/tags
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Check if latest eza-community/eza tag is new
+      id: check_new_tag
+      run: |
+        if echo '${{ steps.fetch_releaser_tags.outputs.data }}' | jq -r '.[].name' | grep -q "${{ env.eza_latest_tag }}"; then
+          echo "new_tag=false" >> $GITHUB_ENV
+        else
+          echo "new_tag=true" >> $GITHUB_ENV
+        fi
+
+    - name: Output result
+      if: env.new_tag == 'true'
+      run: 'echo "New tag found in eza-community/eza: ${{ env.eza_latest_tag }}. This tag is not present in kiliantyler/eza-releaser."'
