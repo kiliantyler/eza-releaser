@@ -10,6 +10,9 @@ on:
 permissions:
   contents: write
 
+env:
+  RELEASER_DIR: releaser
+
 jobs:
   create-release:
     name: create-release
@@ -229,5 +232,5 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       shell: bash
       run: |
-        cd "$RELEASER_DIR"
+        cd "releaser"
         gh release upload v${{ inputs.tag }} ../${{ env.ASSET }} ../${{ env.ASSET_SUM }}
