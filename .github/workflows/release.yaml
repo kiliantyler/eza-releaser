@@ -15,6 +15,13 @@ jobs:
     - name: Show the version
       run: |
         echo "version is: v${{ inputs.tag }}"
+
+    - name: Checkout eza repository
+      uses: actions/checkout@v4
+      with:
+        repository: eza-community/eza
+        ref: v${{ inputs.tag }}
+
     - name: Check that tag version and Cargo.toml version are the same
       shell: bash
       run: |
@@ -171,6 +178,7 @@ jobs:
       uses: actions/checkout@v4
       with:
         repository: eza-community/eza
+        ref: v${{ inputs.tag }}
 
     - name: Build release binary
       shell: bash
