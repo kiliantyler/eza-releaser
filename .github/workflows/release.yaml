@@ -243,8 +243,9 @@ jobs:
 
   delete-release:
     name: delete-release
+    needs: [create-release, build-release]
     runs-on: ubuntu-latest
-    if: ${{ failure() }}
+    if: ${{ always() && (needs.create-release.result != 'success' || needs.build-release.result != 'success') }}
     steps:
     - name: Create GitHub release
       env:
